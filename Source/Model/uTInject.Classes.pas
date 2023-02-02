@@ -18,20 +18,12 @@
 ####################################################################################################################
                                   Evolução do Código
 ####################################################################################################################
-  Autor........:
-  Email........:
-  Data.........:
-  Identificador:
-  Modificação..:
-
   Autor........: Luiz Alves
   Email........: cprmlao@gmail.com
   Data.........: 17/12/2019
   Identificador: @LuizAlvez
   Modificação..: Adicionadas novas propriedades das mensagens conforme verificação com o LOG
-
-####################################################################################################################
-}
+####################################################################################################################}
 
 unit uTInject.Classes;
 
@@ -386,6 +378,20 @@ type
     property valid : boolean  read Fvalid write Fvalid;
   end;
 
+  TIncomingCall = class(TClassPadrao)
+  private
+    FID: String;
+  public
+    property ID : string read FID write FID;
+  end;
+
+  TReturnIncomingCall = class(TClassPadrao)
+  private
+   FContact : string;
+  public
+    constructor Create(pAJsonString: string);
+    property contact : string read FContact write FContact;
+  end;
 
  TGetMeClass = class(TClassPadrao)
    private
@@ -1113,18 +1119,15 @@ constructor TClassPadrao.Create(pAJsonString: string; PJsonOption: TJsonOptions)
 var
   lAJsonObj: TJSONValue;
 begin
-
   lAJsonObj      := TJSONObject.ParseJSONValue(pAJsonString);
   FInjectWorking := False;
+
   try
    try
     if NOT Assigned(lAJsonObj) then
        Exit;
 
-    //tentar thread aqui...
     TJson.JsonToObject(Self, TJSONObject(lAJsonObj) ,PJsonOption);
-    //tentar thread aqui...
-
 
     FJsonString := pAJsonString;
           SleepNoFreeze(10);
@@ -1472,6 +1475,35 @@ constructor TResponseIsDelivered.Create(pAJsonString: string);
 begin
   inherited Create(pAJsonString);
   //FResult := (Copy (FResult, Pos ('@c.us_', FResult) + 2, Length (FResult)));
+end;
+
+{ TReturnIncomingCall }
+
+constructor TReturnIncomingCall.Create(pAJsonString: string);
+var
+  lAJsonObj: TJSONValue;
+  aJson: TJSONObject;
+begin
+  lAJsonObj      := TJSONObject.ParseJSONValue(pAJsonString);
+
+  if NOT Assigned(lAJsonObj) then
+    Exit;
+
+  {$IF COMPILERVERSION > 31}
+  try
+    FContact := lAJsonObj.FindValue('result').Value;
+  finally
+    freeAndNil(lAJsonObj);
+  end;
+  {$ELSE}
+  try
+    aJson := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(pAJsonString), 0) as TJSONObject;
+    FContact := aJson.GetValue('result').Value;
+  finally
+    freeAndNil(aJson)
+  end;
+  {$ENDIF}
+
 end;
 
 end.

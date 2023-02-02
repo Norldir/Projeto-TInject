@@ -137,6 +137,7 @@ type
     SpeedButton11: TSpeedButton;
     SpeedButton7: TSpeedButton;
     btnSendPool: TButton;
+    btSendButtonList: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btSendTextClick(Sender: TObject);
@@ -213,6 +214,8 @@ type
     procedure SpeedButton11Click(Sender: TObject);
     procedure SpeedButton7Click(Sender: TObject);
     procedure btSendTextButtonClick(Sender: TObject);
+    procedure TInject1GetIncomingCall(const incomingCall: TReturnIncomingCall);
+    procedure btSendButtonListClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -353,6 +356,31 @@ begin
 
   //TInject1.CheckIsValidNumber(ed_num.Text); deprecated
   TInject1.NewCheckIsValidNumber(ed_num.Text);
+end;
+
+procedure TfrmPrincipal.btSendButtonListClick(Sender: TObject);
+const options =
+'['+
+'{ title: "Na Hora", rows: [{ title: "💵 Dinheiro", description: "Pagar no local.", }]},'+
+'{ title: "On-line", rows: [{ title: "💱 Pix", description: "Chave: comercial.softmais@gmail.com",},'+
+  '{ title: "1 Cartão Crédito", description: "Parcelar em 1x", },'+
+  '{ title: "2 Cartão Crédito", description: "Parcelar em 2x", },'+
+  '{ title: "3 Cartão Crédito", description: "Parcelar em 3x", },'+
+  '{ title: "4 Cartão Crédito", description: "Parcelar em 4x", },'+
+  '{ title: "5 Cartão Crédito", description: "Parcelar em 5x", },'+
+']}]';
+
+begin
+  try
+    if not TInject1.Auth then
+       Exit;
+
+    TInject1.sendButtonList(ed_num.Text, mem_message.Text, 'TInject Community. Valor total da sua compra: R$299', 'Escolha uma opção de pagamento:', options);
+  finally
+    ed_num.SelectAll;
+    ed_num.SetFocus;
+  end;
+
 end;
 
 procedure TfrmPrincipal.btSendContactClick(Sender: TObject);
@@ -559,16 +587,10 @@ begin
 end;
 
 procedure TfrmPrincipal.btnRemoveGroupLinkClick(Sender: TObject);
-begin//Em breve / Coming soon
-//   try
-//
-//    if not TInject1.Auth then
-//       Exit;
-//
-//    TInject1.sendPool(lbl_idGroup.Caption, '');
-//  finally
-//
-//  end;
+begin  if not TInject1.Auth then
+       Exit;
+
+    TInject1.sendPool(edt_nomeGrupo.Text, 'TInject Community. Novo recurso de Enquete: Qual a melhor linguagem?', '["DELPHI", "JAVA", "C#", "PYTHON", "JAVASCRIPT", "PHP"]');
 end;
 
 procedure TfrmPrincipal.btSetProfileNameClick(Sender: TObject);
@@ -892,14 +914,16 @@ begin
      ShowMessage('Whatsapp Invalid') ;
 end;
 
+procedure TfrmPrincipal.TInject1GetIncomingCall(
+  const incomingCall: TReturnIncomingCall);
+begin
+  memo_unReadMessage.Text := 'Incoming call: ' + incomingCall.contact;
+end;
+
 procedure TfrmPrincipal.TInject1GetInviteGroup(const Invite: string);
-begin
- ShowMessage(Invite);
-end;
-
+begin  edt_groupInviteLink.Text := Invite;  ShowMessage(Invite);end;
 procedure TfrmPrincipal.TInject1GetMe(const vMe: TGetMeClass);
-var aList : TStringList;
-begin
+var aList : TStringList;begin
  try
   aList := TStringList.Create();
 
@@ -995,7 +1019,7 @@ begin
   Except
   end;
 
-  if (TInject(Sender).Status = Inject_Initialized) then
+  if (TInject(Sender).Status = Inject_Initialized) and (TInject1.Auth) then
   begin
     lblStatus.Caption            := 'Online';
     lblStatus.Font.Color         := $0000AE11;
@@ -1230,6 +1254,7 @@ begin
     exit;
 
    TInject1.Logtout;
+   sleepNoFreeze(3000);
    TInject1.Disconnect;
 end;
 

@@ -2,7 +2,7 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'Demo TInject'
-  ClientHeight = 496
+  ClientHeight = 565
   ClientWidth = 1102
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object frmPrincipal: TfrmPrincipal
   TextHeight = 13
   object Lbl_Avisos: TLabel
     Left = 0
-    Top = 464
+    Top = 533
     Width = 1102
     Height = 13
     Align = alBottom
@@ -30,7 +30,7 @@ object frmPrincipal: TfrmPrincipal
     Left = 3
     Top = 3
     Width = 1096
-    Height = 458
+    Height = 527
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -41,7 +41,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 375
         Top = 3
         Width = 710
-        Height = 424
+        Height = 493
         Align = alClient
         BorderStyle = bsSingle
         Caption = 'Pnl_Config'
@@ -51,7 +51,7 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 0
         DesignSize = (
           708
-          422)
+          491)
         object Image1: TImage
           Left = 19
           Top = 232
@@ -573,7 +573,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 3
         Top = 3
         Width = 366
-        Height = 424
+        Height = 493
         Align = alLeft
         BorderStyle = bsSingle
         Caption = 'Panel2'
@@ -583,7 +583,7 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 1
         DesignSize = (
           364
-          422)
+          491)
         object whatsOn: TImage
           Left = 150
           Top = 149
@@ -3197,7 +3197,7 @@ object frmPrincipal: TfrmPrincipal
         end
         object Label3: TLabel
           Left = 1
-          Top = 312
+          Top = 381
           Width = 362
           Height = 80
           Align = alBottom
@@ -3808,7 +3808,7 @@ object frmPrincipal: TfrmPrincipal
         end
         object SpeedButton3: TSpeedButton
           Left = 1
-          Top = 392
+          Top = 461
           Width = 362
           Height = 29
           Align = alBottom
@@ -3902,12 +3902,12 @@ object frmPrincipal: TfrmPrincipal
         Left = 0
         Top = 0
         Width = 249
-        Height = 430
+        Height = 499
         Align = alLeft
         TabOrder = 0
         DesignSize = (
           249
-          430)
+          499)
         object Label1: TLabel
           Left = 5
           Top = 7
@@ -3933,14 +3933,14 @@ object frmPrincipal: TfrmPrincipal
           Left = 5
           Top = 68
           Width = 238
-          Height = 37
+          Height = 69
           Anchors = [akLeft, akTop, akBottom]
           TabOrder = 1
         end
         object btSendTextAndFile: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 245
+          Top = 314
           Width = 239
           Height = 25
           Align = alBottom
@@ -3953,7 +3953,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendText: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 214
+          Top = 283
           Width = 239
           Height = 25
           Align = alBottom
@@ -3991,7 +3991,7 @@ object frmPrincipal: TfrmPrincipal
         object btStatusBat: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 400
+          Top = 469
           Width = 239
           Height = 25
           Align = alBottom
@@ -4003,7 +4003,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendContact: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 276
+          Top = 345
           Width = 239
           Height = 25
           Align = alBottom
@@ -4016,7 +4016,7 @@ object frmPrincipal: TfrmPrincipal
         object btCheckNumber: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 369
+          Top = 438
           Width = 239
           Height = 25
           Align = alBottom
@@ -4029,7 +4029,7 @@ object frmPrincipal: TfrmPrincipal
         object btIsConnected: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 152
+          Top = 190
           Width = 239
           Height = 25
           Align = alBottom
@@ -4042,7 +4042,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendLocation: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 338
+          Top = 407
           Width = 239
           Height = 25
           Align = alBottom
@@ -4055,7 +4055,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendLinkWithPreview: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 307
+          Top = 376
           Width = 239
           Height = 25
           Align = alBottom
@@ -4067,7 +4067,7 @@ object frmPrincipal: TfrmPrincipal
         end
         object ed_videoLink: TEdit
           Left = 5
-          Top = 130
+          Top = 151
           Width = 238
           Height = 21
           TabOrder = 11
@@ -4075,7 +4075,7 @@ object frmPrincipal: TfrmPrincipal
         object btSendTextButton: TButton
           AlignWithMargins = True
           Left = 5
-          Top = 183
+          Top = 252
           Width = 239
           Height = 25
           Align = alBottom
@@ -4085,12 +4085,25 @@ object frmPrincipal: TfrmPrincipal
           TabOrder = 12
           OnClick = btSendTextButtonClick
         end
+        object btSendButtonList: TButton
+          AlignWithMargins = True
+          Left = 5
+          Top = 221
+          Width = 239
+          Height = 25
+          Align = alBottom
+          Caption = 'Enviar bot'#227'o com lista / Send button with list'
+          ImageIndex = 0
+          Images = ImageList1
+          TabOrder = 13
+          OnClick = btSendButtonListClick
+        end
       end
       object Panel1: TPanel
         Left = 249
         Top = 0
         Width = 839
-        Height = 430
+        Height = 499
         Align = alClient
         BevelOuter = bvNone
         Caption = 'Panel1'
@@ -4099,7 +4112,7 @@ object frmPrincipal: TfrmPrincipal
         object Splitter1: TSplitter
           Left = 481
           Top = 0
-          Height = 430
+          Height = 499
           ExplicitLeft = 240
           ExplicitTop = 72
           ExplicitHeight = 100
@@ -4108,7 +4121,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 484
           Top = 0
           Width = 241
-          Height = 430
+          Height = 499
           Align = alLeft
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -4141,7 +4154,7 @@ object frmPrincipal: TfrmPrincipal
             Left = 5
             Top = 49
             Width = 231
-            Height = 376
+            Height = 445
             Align = alClient
             Columns = <>
             LargeImages = ImageList1
@@ -4159,7 +4172,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 252
           Top = 0
           Width = 229
-          Height = 430
+          Height = 499
           Align = alLeft
           TabOrder = 1
           object Panel4: TPanel
@@ -4195,7 +4208,7 @@ object frmPrincipal: TfrmPrincipal
             Left = 5
             Top = 49
             Width = 219
-            Height = 376
+            Height = 445
             Align = alClient
             Columns = <>
             LargeImages = ImageList1
@@ -4213,7 +4226,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 0
           Top = 0
           Width = 252
-          Height = 430
+          Height = 499
           Align = alLeft
           TabOrder = 2
           object lblNumeroConectado: TLabel
@@ -4273,7 +4286,7 @@ object frmPrincipal: TfrmPrincipal
           object btCleanChat: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 338
+            Top = 407
             Width = 242
             Height = 25
             Align = alBottom
@@ -4286,7 +4299,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetMe: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 400
+            Top = 469
             Width = 242
             Height = 25
             Align = alBottom
@@ -4299,7 +4312,7 @@ object frmPrincipal: TfrmPrincipal
           object btnTestCheckNumber: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 369
+            Top = 438
             Width = 242
             Height = 25
             Align = alBottom
@@ -4312,7 +4325,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetSeveralStatus: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 307
+            Top = 376
             Width = 242
             Height = 25
             Align = alBottom
@@ -4325,7 +4338,7 @@ object frmPrincipal: TfrmPrincipal
           object btGetStatus: TButton
             AlignWithMargins = True
             Left = 5
-            Top = 276
+            Top = 345
             Width = 242
             Height = 25
             Align = alBottom
@@ -4384,7 +4397,7 @@ object frmPrincipal: TfrmPrincipal
       ImageIndex = 3
       DesignSize = (
         1088
-        430)
+        499)
       object Image2: TImage
         Left = 744
         Top = 32
@@ -4451,7 +4464,7 @@ object frmPrincipal: TfrmPrincipal
         Left = 3
         Top = 3
         Width = 1082
-        Height = 424
+        Height = 493
         Align = alClient
         BorderStyle = bsSingle
         Caption = 'Pnl_Config'
@@ -4461,7 +4474,7 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 0
         DesignSize = (
           1080
-          422)
+          491)
         object lbl_idGroup: TLabel
           Left = 11
           Top = 109
@@ -5200,7 +5213,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 11
           Top = 125
           Width = 232
-          Height = 294
+          Height = 363
           Anchors = [akLeft, akTop, akBottom]
           Columns = <>
           LargeImages = ImageList1
@@ -5217,7 +5230,7 @@ object frmPrincipal: TfrmPrincipal
           Left = 249
           Top = 224
           Width = 199
-          Height = 195
+          Height = 264
           Anchors = [akLeft, akTop, akBottom]
           Columns = <>
           LargeImages = ImageList1
@@ -5396,7 +5409,7 @@ object frmPrincipal: TfrmPrincipal
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 477
+    Top = 546
     Width = 1102
     Height = 19
     Panels = <
@@ -5512,7 +5525,8 @@ object frmPrincipal: TfrmPrincipal
     OnGetInviteGroup = TInject1GetInviteGroup
     OnGetMe = TInject1GetMe
     OnNewGetNumber = TInject1NewGetNumber
-    Left = 200
+    OnGetIncomingCall = TInject1GetIncomingCall
+    Left = 192
     Top = 320
   end
 end

@@ -153,7 +153,8 @@ type
     Procedure Form_Start;
     Procedure Form_Normal;
 
-     public
+
+    public
     { Public declarations }
     Function  ConfigureNetWork:Boolean;
     Procedure SetZoom(Pvalue: Integer);
@@ -174,6 +175,8 @@ type
     Procedure DisConnect;
     procedure Send(vNum, vText:string);
     procedure SendButtons(phoneNumber, titleText, buttons, footerText: string; etapa: string = '');
+    procedure SendButtonList(phoneNumber, titleText1, titleText2, titleButton, options: string; etapa: string = '');
+    procedure SendPool(vGroupID, vTitle, vSurvey: string);
     procedure CheckDelivered;
     procedure SendContact(vNumDest, vNum:string; vNameContact: string = '');
     procedure SendBase64(vBase64, vNum, vFileName, vText:string);
@@ -790,7 +793,8 @@ begin
        LLine := LLine + LBase64[i];
     vBase64 := LLine;
 
-    LJS := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendBase64;
+    //LJS := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendBase64;
+    LJS := FrmConsole_JS_VAR_SendBase64;
     FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',       Trim(vNum));
     FrmConsole_JS_AlterVar(LJS, '#MSG_NOMEARQUIVO#', Trim(vFileName));
     FrmConsole_JS_AlterVar(LJS, '#MSG_CORPO#',       Trim(vText));
@@ -810,13 +814,34 @@ begin
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
   titleText := CaractersWeb(titleText);
-  LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendButtons;
+  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendButtons;
+  LJS   := FrmConsole_JS_VAR_SendButtons;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',       Trim(phoneNumber));
   FrmConsole_JS_AlterVar(LJS, '#MSG_TITLE#',       Trim(titleText));
   FrmConsole_JS_AlterVar(LJS, '#MSG_BUTTONS#',     Trim(buttons));
   FrmConsole_JS_AlterVar(LJS, '#MSG_FOOTER#',      Trim(footerText));
   ExecuteJS(LJS, true);
+end;
 
+procedure TFrmConsole.SendButtonList(phoneNumber, titleText1, titleText2, titleButton, options: string; etapa: string = '');
+var
+  Ljs: string;
+begin
+  if not FConectado then
+    raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
+
+  titleText1  := CaractersWeb(titleText1);
+  titleText2  := CaractersWeb(titleText2);
+  titleButton := CaractersWeb(titleButton);
+
+  LJS   := FrmConsole_JS_VAR_SendButtonList;
+
+  FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',      Trim(phoneNumber));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_TITLE1#',     Trim(titleText1));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_TITLE2#',     Trim(titleText2));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_TITLEBUTTON#',Trim(titleButton));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_OPTIONS#',    Trim(options));
+  ExecuteJS(LJS, true);
 end;
 
 procedure TFrmConsole.SendContact(vNumDest, vNum: string; vNameContact: string = '');
@@ -826,11 +851,10 @@ begin
   if not FConectado then
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
-  //vText := CaractersWeb(vText);
-  LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendContact;
+  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendContact;
+  LJS   := FrmConsole_JS_VAR_SendContact;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE_DEST#',       Trim(vNumDest));
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',            Trim(vNum));
-  //FrmConsole_JS_AlterVar(LJS, '#MSG_NAMECONTACT#',      Trim(vNameContact));
   ExecuteJS(LJS, true);
 end;
 
@@ -842,7 +866,8 @@ begin
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
   vText := CaractersWeb(vText);
-  LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendLinkPreview;
+  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendLinkPreview;
+  LJS   := FrmConsole_JS_VAR_SendLinkPreview;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',      Trim(vNum));
   FrmConsole_JS_AlterVar(LJS, '#MSG_LINK#',       Trim(vLinkPreview));
   FrmConsole_JS_AlterVar(LJS, '#MSG_CORPO#',      Trim(vText));
@@ -857,7 +882,8 @@ begin
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
   vText := CaractersWeb(vText);
-  LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendLocation;
+  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendLocation;
+  LJS   := FrmConsole_JS_VAR_SendLocation;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',     Trim(vNum));
   FrmConsole_JS_AlterVar(LJS, '#MSG_LAT#',       Trim(vLat));
   FrmConsole_JS_AlterVar(LJS, '#MSG_LNG#',       Trim(vLng));
@@ -900,6 +926,20 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TFrmConsole.SendPool(vGroupID, vTitle, vSurvey: string);
+var
+  Ljs: string;
+begin
+  vTitle := CaractersWeb(vTitle);
+
+  LJS   := FrmConsole_JS_VAR_SendSurvey;
+
+  FrmConsole_JS_AlterVar(LJS, '#MSG_GROUPID#',     Trim(vGroupID));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_TITLE#',       Trim(vTitle));
+  FrmConsole_JS_AlterVar(LJS, '#MSG_SURVEY#',      Trim(vSurvey));
+  ExecuteJS(LJS, true);
+end;
+
 procedure TFrmConsole.Send(vNum, vText: string);
 var
   Ljs: string;
@@ -908,7 +948,8 @@ begin
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
 
   vText := CaractersWeb(vText);
-  LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendMsg;
+  //LJS   := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendMsg;
+  LJS   := FrmConsole_JS_VAR_SendMsg;
   FrmConsole_JS_AlterVar(LJS, '#MSG_PHONE#',       Trim(vNum));
   FrmConsole_JS_AlterVar(LJS, '#MSG_CORPO#',       Trim(vText));
   ExecuteJS(LJS, true);
@@ -1236,6 +1277,17 @@ begin
                               finally
                                 FreeAndNil(LOutClass);
                               end;
+                            end;
+
+    Th_GetIncomingCall        : begin
+                                LOutClass := TReturnIncomingCall.Create(LResultStr);
+                              try
+                                SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
+                              finally
+                                FreeAndNil(LOutClass);
+                              end;
+
+
                             end;
    end;
 end;

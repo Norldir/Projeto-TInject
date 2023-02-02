@@ -1,7 +1,11 @@
 ﻿{####################################################################################################################
-                              TINJECT - Componente de mensageria
+                              TINJECT - Componente de comunicação (Não Oficial)
+                                           www.tinject.com.br
+                                            Novembro de 2019
 ####################################################################################################################
-
+    Owner.....: Mike W. Lustosa            - mikelustosa@gmail.com   - +55 81 9.9630-2385
+    Developer.: Joathan Theiller           - jtheiller@hotmail.com   -
+                Daniel Oliveira Rodrigues  - Dor_poa@hotmail.com     - +55 51 9.9155-9228
 ####################################################################################################################
   Obs:
      - Código aberto a comunidade Delphi, desde que mantenha os dados dos autores e mantendo sempre o nome do IDEALIZADOR
@@ -37,6 +41,12 @@ uses
   uTInject.Diversos, Vcl.Imaging.jpeg;
 
 
+  {$IF DECLARED(FireMonkeyVersion)}
+    {$DEFINE HAS_FMX}
+  {$ELSE}
+    {$DEFINE HAS_VCL}
+  {$IFEND}
+
 type
   {Events}
   TOnGetIsDelivered         = Procedure(Sender : TObject; Status: string) of object;
@@ -54,6 +64,7 @@ type
   TOnGetInviteGroup         = procedure(Const Invite : String) of object;
   TOnGetMe                  = procedure(Const vMe : TGetMeClass) of object;
   TOnNewCheckNumber         = procedure(Const vCheckNumber : TReturnCheckNumber) of object;
+  TOnGetIncomingCall        = procedure(Const incomingCall: TReturnIncomingCall) of object;
 
 
   TInject = class(TComponent)
@@ -66,7 +77,6 @@ type
     FDestroyTmr             : Ttimer;
     FFormQrCodeType         : TFormQrCodeType;
     FMyNumber               : string;
-    FserialCorporate        : string;
     FIsDelivered            : string;
     FGetBatteryLevel        : Integer;
     FGetIsConnected         : Boolean;
@@ -91,8 +101,8 @@ type
     procedure SetInjectConfig(const Value: TInjectConfig);
     procedure SetdjustNumber(const Value: TInjectAdjusteNumber);
     procedure SetInjectJS(const Value: TInjectJS);
-    procedure SetSerialCorporate(const Value: TInjectJS);
     procedure OnDestroyConsole(Sender : TObject);
+
 
   protected
     { Protected declarations }
@@ -121,6 +131,7 @@ type
     FOnGetInviteGroup           : TOnGetInviteGroup;
     FOnGetMe                    : TOnGetMe;
     FOnNewCheckNumber           : TOnNewCheckNumber;
+    FOnGetIncomingCall          : TOnGetIncomingCall;
 
     procedure Int_OnNotificationCenter(PTypeHeader: TTypeHeader; PValue: String; Const PReturnClass : TObject= nil);
 
@@ -139,6 +150,8 @@ type
     function  TestConnect:  Boolean;
     procedure Send(PNumberPhone, PMessage: string; PEtapa: string = '');
     procedure SendButtons(phoneNumber: string; titleText: string; buttons: string; footerText: string; etapa: string = '');
+    procedure SendButtonList(phoneNumber: string; titleText1: string; titleText2: string; titleButton: string; options: string; etapa: string = '');
+    procedure sendPool(PGroupID, PTitle, PSurvey: string);
     procedure deleteConversation(PNumberPhone: string);
     procedure SendContact(PNumberPhone, PNumber: string; PNameContact: string = '');
     procedure SendFile(PNumberPhone: String; Const PFileName: String; PMessage: string = '');
@@ -198,7 +211,6 @@ type
     Property InjectJS                    : TInjectJS                  read FInjectJS                       Write SetInjectJS;
     property Config                      : TInjectConfig              read FInjectConfig                   Write SetInjectConfig;
     property AjustNumber                 : TInjectAdjusteNumber       read FAdjustNumber                   Write SetdjustNumber;
-    property serialCorporate             : string                     read FserialCorporate                write FserialCorporate;
     property FormQrCodeType              : TFormQrCodeType            read FFormQrCodeType                 Write SetQrCodeStyle                      Default Ft_Desktop;
     property LanguageInject              : TLanguageInject            read FLanguageInject                 Write SetLanguageInject                   Default TL_Portugues_BR;
     property OnGetAllContactList         : TOnAllContacts             read FOnGetAllContactList            write FOnGetAllContactList;
@@ -231,6 +243,7 @@ type
     property OnGetInviteGroup            : TOnGetInviteGroup          read FOnGetInviteGroup               write FOnGetInviteGroup;
     property OnGetMe                     : TOnGetMe                   read FOnGetMe                        write FOnGetMe;
     property OnNewGetNumber              : TOnNewCheckNumber          read FOnNewCheckNumber               write FOnNewCheckNumber;
+    property OnGetIncomingCall           : TOnGetIncomingCall         read FOnGetIncomingCall              write FOnGetIncomingCall;
   end;
 
 procedure Register;
@@ -405,6 +418,7 @@ end;
 
 constructor TInject.Create(AOwner: TComponent);
 begin
+  
   inherited;
   FDestroyTmr                         := Ttimer.Create(nil);
   FDestroyTmr.Enabled                 := False;
@@ -815,11 +829,6 @@ begin
 
 end;
 
-procedure TInject.SetSerialCorporate(const Value: TInjectJS);
-begin
-  FInjectJS.Assign(Value);
-end;
-
 procedure TInject.SetStatus(vStatus: String);
 begin
    If Application.Terminated Then
@@ -1194,6 +1203,12 @@ begin
        FOnNewCheckNumber(TReturnCheckNumber(PReturnClass));
   end;
 
+  if PTypeHeader = Th_GetIncomingCall  then
+  begin
+    if Assigned(FOnGetIncomingCall) then
+       FOnGetIncomingCall(TReturnIncomingCall(PReturnClass));
+  end;
+
 
   if PTypeHeader = Th_GetBatteryLevel then
   Begin
@@ -1494,6 +1509,49 @@ begin
 
 end;
 
+procedure TInject.sendPool(PGroupID, PTitle, PSurvey: string);
+var
+  lThread : TThread;
+begin
+  If Application.Terminated Then
+     Exit;
+  if not Assigned(FrmConsole) then
+     Exit;
+
+  PGroupID := AjustNumber.FormatIn(PGroupID);
+
+  if pos('@', PGroupID) = 0 then
+  Begin
+    Int_OnErroInterno(Self, MSG_ExceptPhoneNumberError, PGroupID);
+    Exit;
+  end;
+
+  if Trim(PTitle) = '' then
+  begin
+    Int_OnErroInterno(Self, MSG_WarningNothingtoSend, PTitle);
+    Exit;
+  end;
+
+  lThread := TThread.CreateAnonymousThread(procedure
+      begin
+        if Config.AutoDelay > 0 then
+           sleep(random(Config.AutoDelay));
+
+        TThread.Synchronize(nil, procedure
+        begin
+          if Assigned(FrmConsole) then
+          begin
+            FrmConsole.sendPool(PGroupID, PTitle, PSurvey);
+          end;
+        end);
+
+      end);
+
+  lThread.FreeOnTerminate := true;
+  lThread.Start;
+
+end;
+
 procedure TInject.sendBase64(Const vBase64: String; vNum: String;  Const vFileName, vMess: string);
 Var
   lThread : TThread;
@@ -1572,6 +1630,53 @@ begin
           begin
             FrmConsole.ReadMessages(phoneNumber); //Marca como lida a mensagem
             FrmConsole.SendButtons(phoneNumber, titleText, buttons, footerText);
+            if etapa <> '' then
+            begin
+              FrmConsole.ReadMessagesAndDelete(phoneNumber);//Deleta a conversa
+            end;
+          end;
+        end);
+
+      end);
+  lThread.FreeOnTerminate := true;
+  lThread.Start;
+
+end;
+
+procedure TInject.SendButtonList(phoneNumber: string; titleText1: string; titleText2: string; titleButton: string; options: string;
+  etapa: string = '');
+var
+  lThread : TThread;
+begin
+  If Application.Terminated Then
+     Exit;
+  if not Assigned(FrmConsole) then
+     Exit;
+
+  phoneNumber := AjustNumber.FormatIn(phoneNumber);
+  if pos('@', phoneNumber) = 0 then
+  Begin
+    Int_OnErroInterno(Self, MSG_ExceptPhoneNumberError, phoneNumber);
+    Exit;
+  end;
+
+  if (Trim(titleText1) = '') or  (Trim(titleText2) = '') or (Trim(titleButton) = '') then
+  begin
+    Int_OnErroInterno(Self, MSG_WarningNothingtoSend, phoneNumber);
+    Exit;
+  end;
+
+  lThread := TThread.CreateAnonymousThread(procedure
+      begin
+        if Config.AutoDelay > 0 then
+           sleep(random(Config.AutoDelay));
+
+        TThread.Synchronize(nil, procedure
+        begin
+          if Assigned(FrmConsole) then
+          begin
+            FrmConsole.ReadMessages(phoneNumber); //Marca como lida a mensagem
+            FrmConsole.SendButtonList(phoneNumber, titleText1, titleText2, titleButton, options);
             if etapa <> '' then
             begin
               FrmConsole.ReadMessagesAndDelete(phoneNumber);//Deleta a conversa
@@ -1863,7 +1968,12 @@ begin
     LAbel1.Caption                    := Text_FrmClose_Label;
     LAbel1.AlignWithMargins           := true;
     LForm.Visible                     := True;
-    Application.MainForm.Visible      := False;
+
+//    Causando problema no FMX
+//    {$IFDEF HAS_VCL}
+//    Application.MainForm.Visible      := False;
+//    {$ENDIF}
+
     LForm.Show;
 
     Disconnect;
