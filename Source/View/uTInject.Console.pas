@@ -97,6 +97,8 @@ type
       const params: ICefContextMenuParams; const model: ICefMenuModel);
     procedure Button2Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
+    procedure Lbl_CaptionClick(Sender: TObject);
+    procedure Img_LogoInjectClick(Sender: TObject);
   protected
     // You have to handle this two messages to call NotifyMoveOrResizeStarted or some page elements will be misaligned.
     procedure WMMove(var aMessage : TWMMove); message WM_MOVE;
@@ -153,7 +155,6 @@ type
     Procedure Form_Start;
     Procedure Form_Normal;
 
-
     public
     { Public declarations }
     Function  ConfigureNetWork:Boolean;
@@ -179,7 +180,7 @@ type
     procedure SendPool(vGroupID, vTitle, vSurvey: string);
     procedure CheckDelivered;
     procedure SendContact(vNumDest, vNum:string; vNameContact: string = '');
-    procedure SendBase64(vBase64, vNum, vFileName, vText:string);
+    procedure SendBase64(vBase64: string; vNum: string; vFileName: string; vText: string = '');
     procedure SendLinkPreview(vNum, vLinkPreview, vText: string);
     procedure SendLocation(vNum, vLat, vLng, vName, vAddress: string);
     procedure Logout();
@@ -194,7 +195,7 @@ type
     procedure GroupLeave(vIDGroup: string);
     procedure GroupDelete(vIDGroup: string);
     procedure GroupJoinViaLink(vLinkGroup: string);
-
+    procedure consoleClear();
     procedure getGroupInviteLink(vIDGroup: string);
     procedure revokeGroupInviteLink(vIDGroup: string);
     procedure setNewName(newName: string);
@@ -445,7 +446,7 @@ begin
     If Assigned(TInject(FOwner).OnGetQrCode) then
        TInject(FOwner).OnGetQrCode(self, LResultQrCode);
   Except
-    FrmQRCode.SetView(FrmQRCode.Timg_Animacao);
+    //FrmQRCode.SetView(FrmQRCode.Timg_Animacao);
   end;
 end;
 
@@ -775,11 +776,12 @@ begin
   Chromium1.OnTitleChange           := nil;
 end;
 
-procedure TFrmConsole.SendBase64(vBase64, vNum, vFileName, vText: string);
+procedure TFrmConsole.SendBase64(vBase64: string; vNum: string; vFileName: string; vText: string = '');
 var
   Ljs, LLine: string;
   LBase64: TStringList;
   i: integer;
+  LMime: string;
 begin
   if not FConectado then
     raise Exception.Create(MSG_ConfigCEF_ExceptConnetServ);
@@ -787,11 +789,14 @@ begin
   vText           := CaractersWeb(vText);
   vFileName       := ExtractFileName(vFileName); //AjustNameFile(vFileName) Alterado em 20/02/2020 by Lucas
   LBase64         := TStringList.Create;
-  TRY
+  try
+    //vBase64 := FileToBase64_(trim(vBase64));
     LBase64.Text := vBase64;
+
     for i := 0 to LBase64.Count -1  do
        LLine := LLine + LBase64[i];
     vBase64 := LLine;
+
 
     //LJS := FrmConsole_JS_VAR_SendTyping + FrmConsole_JS_VAR_SendBase64;
     LJS := FrmConsole_JS_VAR_SendBase64;
@@ -799,10 +804,12 @@ begin
     FrmConsole_JS_AlterVar(LJS, '#MSG_NOMEARQUIVO#', Trim(vFileName));
     FrmConsole_JS_AlterVar(LJS, '#MSG_CORPO#',       Trim(vText));
     FrmConsole_JS_AlterVar(LJS, '#MSG_BASE64#',      Trim(vBase64));
+    //FrmConsole_JS_AlterVar(LJS, '#MSG_BASE64#',      vBase64);
+
     ExecuteJS(LJS, True);
-  FINALLY
+  finally
     freeAndNil(LBase64);
-  END;
+  end;
 end;
 
 procedure TFrmConsole.SendButtons(phoneNumber, titleText, buttons, footerText,
@@ -1136,6 +1143,16 @@ begin
                           End;
 
     Th_getUnreadMessages: begin
+                            LOutClass := TChatList.Create(LResultStr);
+                            try
+                              SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
+                            finally
+                              FreeAndNil(LOutClass);
+                            end;
+                            FgettingChats := False;
+                          end;
+
+    Th_getUnreadMessagesFromMe: begin
                             LOutClass := TChatList.Create(LResultStr);
                             try
                               SendNotificationCenterDirect(PResponse.TypeHeader, LOutClass);
@@ -1492,6 +1509,11 @@ begin
   end;
 end;
 
+procedure TFrmConsole.consoleClear;
+begin
+  ExecuteJS(Frmconsole_JS_consoleClear, true);
+end;
+
 procedure TFrmConsole.CreateGroup(vGroupName, PParticipantNumber: string);
 var
   Ljs: string;
@@ -1638,6 +1660,11 @@ begin
  Chromium1.ShowDevTools(TempPoint, nil);
 end;
 
+procedure TFrmConsole.Img_LogoInjectClick(Sender: TObject);
+begin
+  Chromium1.Browser.MainFrame.ExecuteJavaScript('console.clear();', '', 0);
+end;
+
 procedure TFrmConsole.Int_FrmQRCodeClose(Sender: TObject);
 begin
   if FFormType = Ft_Desktop then
@@ -1662,6 +1689,15 @@ begin
   ExecuteJS(FrmConsole_JS_IsLoggedIn, false);
 end;
 
+
+procedure TFrmConsole.Lbl_CaptionClick(Sender: TObject);
+var
+  tp: Tpoint;
+begin
+  tp.X := FrmConsole.Width;
+  tp.Y := FrmConsole.Height;
+  FrmConsole.Chromium1.ShowDevTools(tp, nil);
+end;
 
 procedure TFrmConsole.lbl_VersaoMouseEnter(Sender: TObject);
 const

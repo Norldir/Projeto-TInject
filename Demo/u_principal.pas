@@ -138,6 +138,7 @@ type
     SpeedButton7: TSpeedButton;
     btnSendPool: TButton;
     btSendButtonList: TButton;
+    btnConsoleClear: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btSendTextClick(Sender: TObject);
@@ -163,7 +164,6 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure TInject1GetQrCode(COnst Sender: TObject; const QrCode: TResultQRCodeClass);
     procedure whatsOnClick(Sender: TObject);
-    procedure TInject1LowBattery(Sender: TObject);
     procedure TInject1DisconnectedBrute(Sender: TObject);
     procedure chk_3Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
@@ -216,6 +216,7 @@ type
     procedure btSendTextButtonClick(Sender: TObject);
     procedure TInject1GetIncomingCall(const incomingCall: TReturnIncomingCall);
     procedure btSendButtonListClick(Sender: TObject);
+    procedure btnConsoleClearClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -323,8 +324,7 @@ end;
 
 procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  TInject1.ShutDown;
-//  FreeAndNil(GlobalCEFApp);
+  TInject1.ShutDown(true);//true or false para exibir ou ocultar a caixa de dialogo
 end;
 
 Procedure TfrmPrincipal.AddChatList(ANumber: String);
@@ -615,6 +615,14 @@ begin
 end;
 
 
+
+procedure TfrmPrincipal.btnConsoleClearClick(Sender: TObject);
+begin
+  if not TInject1.Auth then
+       Exit;
+
+  TInject1.ConsoleClear;
+end;
 
 procedure TfrmPrincipal.btnRemoveGroupLinkClick(Sender: TObject);
 begin
@@ -1218,7 +1226,7 @@ var
   contato, telefone: string;
   injectDecrypt: TInjectDecryptFile;
 begin
-    for AChat in Chats.result do
+   for AChat in Chats.result do
     begin
       for AMessage in AChat.messages do
       begin
@@ -1269,14 +1277,6 @@ begin
   showMessage('Desconectado / Not connected')
 end;
 
-procedure TfrmPrincipal.TInject1LowBattery(Sender: TObject);
-begin
-  Timer2.Enabled        := False;
-  Lbl_Avisos.Caption    := 'Alarme de BATERIA.  Você está com ' + TInject(Sender).BatteryLevel.ToString + '%';
-  Lbl_Avisos.Font.Color := clRed;
-  Timer2.Enabled        := True;
-end;
-
 procedure TfrmPrincipal.TInject1NewGetNumber(
   const vCheckNumber: TReturnCheckNumber);
 
@@ -1286,19 +1286,12 @@ begin
 
  else
   Showmessage(vCheckNumber.id + ' é um numero INVÁLIDO');
-
 end;
-
-
 
 procedure TfrmPrincipal.listaChatsClick(Sender: TObject);
 begin
-
   lblContactStatus.caption := '-';
-
 end;
-
-
 
 procedure TfrmPrincipal.listaChatsDblClick(Sender: TObject);
 begin

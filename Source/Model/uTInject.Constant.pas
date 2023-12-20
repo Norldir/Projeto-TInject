@@ -29,12 +29,12 @@ unit uTInject.Constant;
 
 interface
 
-Uses Winapi.Messages, System.SysUtils, typinfo, REST.Json;
+Uses Winapi.Messages, System.SysUtils, typinfo, REST.Json, StrUtils, EncdDecd;
 
 Const
   //Uso GLOBAL
                                   //Version updates I=HIGH, II=MEDIUM, III=LOW, IV=VERY LOW
-  TInjectVersion                  = '4.0.0.0'; //  31/07/2023  //Alterado por Mike Lustosa
+  TInjectVersion                  = '4.0.2.0'; //  01/11/2023  //Alterado por Mike Lustosa
   CardContact                     = '@c.us';
   CardGroup                       = '@g.us';
   CardList                        = '@broadcast';
@@ -67,9 +67,9 @@ Const
   FrmConsole_JS_GetUnreadMessages       = 'window.WAPI.getUnreadMessages(includeMe="True", includeNotifications="True", use_unread_count="True");';
   FrmConsole_JS_GetAllChats             = 'window.WAPI.getAllChats();';
   FrmConsole_JS_checkDelivered          = 'window.WAPI.getDelivered();';
-  FrmConsole_JS_WEBmonitorQRCode        = 'var AQrCode = document.getElementsByTagName("canvas")[0].toDataURL("image/png");console.log(JSON.stringify({"name":"getQrCodeWEB","result":{AQrCode}}));';
-  FrmConsole_JS_refreshOnlyQRCode       = 'interval = window.setInterval(async function() { new Promise((resolve, reject) => { let all = []; all = document.querySelectorAll("button"); if (all[0]) { if (all.includes("recarregar")) { all[0].click() } } })}, 60000);';
-  FrmConsole_JS_monitorQRCode           = 'var AQrCode = document.getElementsByTagName("canvas")[0].toDataURL("image/png");console.log(JSON.stringify({"name":"getQrCode","result":{AQrCode}}));';
+  FrmConsole_JS_WEBmonitorQRCode        = 'try {let AQrCode = document.getElementsByTagName("canvas")[0].toDataURL("image/png");console.log(JSON.stringify({"name":"getQrCodeWEB","result":{AQrCode}}));}catch(e){console.log("carregando qrcode...")}';
+  FrmConsole_JS_refreshOnlyQRCode       = '';
+  FrmConsole_JS_monitorQRCode           = 'try {let AQrCode = document.getElementsByTagName("canvas")[0].toDataURL("image/png");console.log(JSON.stringify({"name":"getQrCode","result":{AQrCode}}));}catch(e){console.log("Carregando qrcode web")}';
   FrmConsole_JS_StopMonitor             = 'stopMonitor();';
   FrmConsole_JS_IsLoggedIn              = 'WAPI.isLoggedIn();';
   FrmConsole_JS_VAR_StartMonitor        = 'startMonitor(intervalSeconds=<#TEMPO#>)';
@@ -109,7 +109,7 @@ Const
 
   FrmConsole_JS_VAR_getProfilePicThumb      = 'window.WAPI.teste("<#PROFILE_PICTHUMB_URL#>");';
   FrmConsole_JS_VAR_CreateGroup             = 'window.WAPI.createGroup("<#GROUP_NAME#>", "<#PARTICIPANT_NUMBER#>");setTimeout(function(){ window.WAPI.getAllGroups(); }, 3000);';
-
+  Frmconsole_JS_consoleClear                = 'console.clear();';
   FrmConsole_JS_GetAllGroups                = 'window.WAPI.getAllGroups();';
   FrmConsole_JS_GetGroupAdmins              = 'window.WAPI.getGroupAdmins("<#GROUP_ID#>");';
   FrmConsole_JS_VAR_listGroupContacts       = 'window.WAPI.getGroupParticipantIDs("<#GROUP_ID#>");';
@@ -150,7 +150,7 @@ resourcestring
   Text_FrmClose_Label                  = '';
   Text_FrmClose_WarningClose           = '';
   Text_FrmQRCode_CaptionStart          = '';
-  Text_FrmQRCode_CaptionSucess         = '';
+  Text_FrmQRCode_CaptionSucess         = 'Gerando QRCode...';
   Text_FrmQRCode_OnCLose               = '';
   MSG_ExceptPhoneNumberError           = '';
   MSG_ExceptAlterDesigner              = '';
@@ -247,22 +247,22 @@ type
 
     TTypeHeader = (Th_None = 0,
                    //Eventos de Retornos
-                   Th_GetAllContacts=1,         Th_GetAllChats=2,                      Th_GetUnreadMessages=3,    Th_GetAllGroupContacts=4,
-                   Th_GetBatteryLevel=5,        Th_GetQrCodeForm=6,                    Th_GetQrCodeWEB=7,
-                   Th_GetMyNumber=8,            Th_OnChangeConnect=9,                  Th_getIsDelivered=10,
-                   Th_GetReserv2=11,            Th_GetReserv3=12,                      Th_GetReserv4=13,
-                   Th_GetReserv5=14,            Th_GetReserv6=15,                      Th_GetReserv7=16,
-                   Th_GetCheckIsValidNumber=17, Th_GetCheckIsConnected=18,             Th_GetProfilePicThumb=19,  Th_getAllGroups=20, Th_getAllGroupAdmins=21,
+                   Th_GetAllContacts=1,         Th_GetAllChats=2,                      Th_GetUnreadMessages=3,    Th_getUnreadMessagesFromMe=4, Th_GetAllGroupContacts=5,
+                   Th_GetBatteryLevel=6,        Th_GetQrCodeForm=7,                    Th_GetQrCodeWEB=8,
+                   Th_GetMyNumber=9,            Th_OnChangeConnect=10,                  Th_getIsDelivered=11,
+                   Th_GetReserv2=12,            Th_GetReserv3=13,                      Th_GetReserv4=14,
+                   Th_GetReserv5=15,            Th_GetReserv6=16,                      Th_GetReserv7=17,
+                   Th_GetCheckIsValidNumber=18, Th_GetCheckIsConnected=19,             Th_GetProfilePicThumb=20,  Th_getAllGroups=21, Th_getAllGroupAdmins=22,
 
                    //Eventos Conexao
-                   Th_Disconnected=22,          Th_Disconnecting=23,                   Th_Connected=24,
-                   Th_ConnectedDown=25,         Th_Connecting=26,                      Th_ConnectingFt_Desktop=27,
-                   Th_ConnectingFt_HTTP=28,     Th_ConnectingNoPhone=29,               Th_Destroy=30,
-                   Th_Destroying=31,            Th_NewSyncContact=32,                  Th_Initializing=33,
-                   Th_Initialized=34,           Th_Abort=35,                           Th_ForceDisconnect=36,
-                   Th_AlterConfig=37,
+                   Th_Disconnected=23,          Th_Disconnecting=24,                   Th_Connected=25,
+                   Th_ConnectedDown=26,         Th_Connecting=27,                      Th_ConnectingFt_Desktop=28,
+                   Th_ConnectingFt_HTTP=29,     Th_ConnectingNoPhone=30,               Th_Destroy=31,
+                   Th_Destroying=32,            Th_NewSyncContact=33,                  Th_Initializing=34,
+                   Th_Initialized=35,           Th_Abort=36,                           Th_ForceDisconnect=37,
+                   Th_AlterConfig=38,
 
-                   Th_GetStatusMessage=38, Th_GetGroupInviteLink=39, Th_GetMe=40, Th_NewCheckIsValidNumber=41, Th_GetIncomingCall=42
+                   Th_GetStatusMessage=39, Th_GetGroupInviteLink=40, Th_GetMe=41, Th_NewCheckIsValidNumber=42, Th_GetIncomingCall=43
                    );
 
     Function   VerificaCompatibilidadeVersao(PVersaoExterna:String; PversaoInterna:String):Boolean;
@@ -270,6 +270,7 @@ type
     function   StrToTypeHeader(PText: string): TTypeHeader;
     Procedure  SleepNoFreeze(PTimeOut:Integer);
     Function   StrExtFile_Base64Type(PFileName: String): String;
+    function   FileToBase64_(const fileName: string): string;
 
 implementation
 
@@ -339,6 +340,26 @@ Begin
 End;
 
 
+function FileToBase64_(const fileName: string): string;
+var
+  FileStream: TFileStream;
+  MemoryStream: TMemoryStream;
+  mimeType: string;
+begin
+  FileStream := TFileStream.Create(fileName, fmOpenRead);
+  MemoryStream := TMemoryStream.Create;
+  try
+    MemoryStream.CopyFrom(FileStream, 0);
+    mimeType := StrExtFile_Base64Type(fileName);
+
+    Result := mimeType + EncodeBase64(MemoryStream.Memory, MemoryStream.Size);
+  finally
+    MemoryStream.Free;
+    FileStream.Free;
+  end;
+end;
+
+
 Function  StrExtFile_Base64Type(PFileName: String): String;
 var
   I: Integer;
@@ -346,7 +367,17 @@ var
   Ltmp: String;
 Begin
   LExt   := LowerCase(Copy(ExtractFileExt(PFileName),2,50));
+
+  case AnsiIndexStr(LExt, ['mp4', 'mp3', 'ogg', 'avi', 'mpeg']) of
+      0: begin result := 'data:application/mp4;base64,'; exit; end;
+      1: begin result := 'data:audio/mp3;base64,'; exit; end;
+      2: begin result := 'data:audio/ogg;base64,'; exit; end;
+      3: begin result := 'data:video/avi;base64,'; exit; end;
+      4: begin result := 'data:video/mpeg;base64,'; exit; end;
+    end;
+
   Result := 'data:application/';
+
   try
     for I := 0 to 6 do
     begin
@@ -369,12 +400,12 @@ Begin
     end;
 
   finally
-     Result := Result + LExt + ';base64,' ;
+     Result :=  Result + LExt + ';base64,' ;
   end;
 End;
 
-function   StrToTypeHeader(PText: string): TTypeHeader;
-const LmaxCount = 42;
+function StrToTypeHeader(PText: string): TTypeHeader;
+const LmaxCount = 43;
 var
   I: Integer;
   LNome: String;
